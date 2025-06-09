@@ -27,7 +27,7 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         position: relative;
-        text-shadow: 0 0 4px #ffcc66, 0 0 10px #ffcc66;
+        text-shadow: 0 0 2px #ffcc66, 0 0 4px #ffcc66, 0 0 8px #ffcc66, 0 0 12px #ffcc66;
         animation: flicker 3s infinite alternate;
         z-index: 2;
       }
@@ -76,13 +76,14 @@
       .hidden-link:hover {
         opacity: 1;
       }
+      
     </style>
   </head>
   <body>
     <audio id="jonasBroadcast" autoplay loop>
-      <source src="/public/jonas_hevel_audio.mp3" type="audio/mpeg" />
+      <source src="public/jonas_hevel_audio.mp3" type="audio/mpeg" />
     </audio>
-
+    <audio id="jonasBroadcast" autoplay loop muted></audio>
     <div class="scanlines"></div>
 
     <div class="terminal">
@@ -93,6 +94,16 @@
 
     <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
 
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      box-shadow: inset 0 0 120px rgba(255, 204, 102, 0.12);
+      pointer-events: none; 
+      z-index: 1;">
+</div>
     <script>
       const fragments = [
         "he said he remembered forgetting—the light was wrong, the air too still.",
@@ -127,6 +138,13 @@
 
       setInterval(updateTerminal, 6000);
       updateTerminal();
+
+      const audio = document.getElementById('jonasBroadcast');
+  audio.muted = false;
+  audio.play().catch(() => {
+    // fallback if autoplay fails
+    console.warn('Audio playback blocked by browser. User interaction required.');
+  });
     </script>
   </body>
 </html>
