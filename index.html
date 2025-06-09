@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echoes and paths</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        color: #00ffcc;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1rem;
+        line-height: 1.5;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .bg-image {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        opacity: 0.10;
+        pointer-events: none;
+        z-index: -2;
+        animation: bgFlicker 4s infinite alternate;
+      }
+
+      @keyframes bgFlicker {
+        0% { opacity: 0.05; }
+        50% { opacity: 0.09; }
+        100% { opacity: 0.07; }
+      }
+
+      .grain-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-image: url('public/grain.png');
+        mix-blend-mode: overlay;
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .terminal {
+        max-width: 90vw;
+        max-height: 90vh;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        position: relative;
+        animation: flicker 3s infinite alternate;
+      }
+
+      @keyframes flicker {
+        0% { opacity: 1; }
+        50% { opacity: 0.98; }
+        100% { opacity: 1; }
+      }
+
+      .hidden-link {
+        color: #00ffcc;
+        text-decoration: none;
+        position: absolute;
+        bottom: 2vh;
+        right: 3vw;
+        font-size: 0.8rem;
+        opacity: 0.2;
+        transition: opacity 0.5s;
+      }
+
+      .hidden-link:hover {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <img class="bg-image" id="bgImage" alt="flicker memory" />
+
+    <div class="grain-overlay"></div>
+
+    <div class="terminal">
+      <p>// fragment log: node 01-A</p>
+      <p id="fragment"></p>
+      <p>// signal echo: jonas.hevel://witness/anomaly</p>
+    </div>
+
+    <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
+
+    <script>
+      const fragments = [
+        "he said he remembered forgetting—the light was wrong, the air too still.",
+        "we never checked the return codes. it just felt... final.",
+        "jonas was already gone when we started listening.",
+        "memory corrupt: trace anomaly ≠ confession",
+        "i only remember the parts that didn’t happen.",
+        "data cascade under audit lock. recursion detected.",
+        "pattern echoes exceed threshold. purge incomplete.",
+        "this isn’t the first version of you i’ve met.",
+        "archival interface breached. standby unknown."
+      ];
+      const frag = fragments[Math.floor(Math.random() * fragments.length)];
+      document.getElementById("fragment").innerText = `"${frag}"`;
+    </script>
+  </body>
+</html>
