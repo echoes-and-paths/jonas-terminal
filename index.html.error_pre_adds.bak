@@ -106,7 +106,6 @@
   <div id="startup">
 > SYSTEM LINK :: <span class="glitch-char">CORRUPTED</span> MEMORY SECTOR ACCESS<br/>
 > ARCHIVE FILE RECOVERY INTERFACE v7.1<br/><br/>
-    <span id="errorMessage" style="color: #FF5555; display: block; min-height: 1.5rem;"></span>
 > Enter archive file name: <span id="typed"></span><span class="cursor">&nbsp;</span><br/>
 <span class="jonas-hint">jonas</span>
   </div>
@@ -125,7 +124,6 @@
     const volumeLevels = [0.2, 0.5, 0.9]; // Low, Medium, High
     const volumeNames = ["Low", "Medium", "High"];
     let currentVolumeIndex = 1; // Start at Medium
-    const errorMessageEl = document.getElementById('errorMessage');
     const audio = document.getElementById('hevelAudio');
     const startup = document.getElementById('startup');
     const terminal = document.getElementById('terminal');
@@ -137,19 +135,16 @@
     ];
     let inputBuffer = "";
     let playbackStarted = false;
-
     function updateExcerpts() {
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
       });
     }
-
     function formatTime(s) {
       const m = Math.floor(s / 60).toString().padStart(2, '0');
       const sec = Math.floor(s % 60).toString().padStart(2, '0');
       return `${m}:${sec}`;
     }
-
     function monitorAudio() {
       const duration = audio.duration || 200;
       const interval = setInterval(() => {
@@ -157,7 +152,6 @@
         audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(duration)}`;
       }, 1000);
     }
-
     function handlePlaybackEnd() {
       endPrompt.innerHTML = `>> end of audio signal<br/>play again? (y/n)`;
       document.addEventListener("keydown", function handler(e) {
@@ -174,59 +168,47 @@
         }
       });
     }
-
     function setInitialAudioSettings() {
-      audio.volume = volumeLevels[currentVolumeIndex];
+    // audio.volume = 0.85 + Math.random() * 0.15; // This was the OLD LINE
+    audio.volume = volumeLevels[currentVolumeIndex]; // NEW: Set to current selected level
     }
-
     function showCommands() {
       endPrompt.innerHTML += `<br/>> commands: p = pause/play, r = rewind 10s, f = forward 10s, v = volume, q = quit`;
     }
-
     audio.addEventListener("ended", handlePlaybackEnd);
-
     document.addEventListener("keydown", (e) => {
       if (!playbackStarted) {
         if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
-          if(errorMessageEl) errorMessageEl.textContent = "";
           inputBuffer += e.key.toLowerCase();
           typed.textContent = inputBuffer;
         } else if (e.key === "Backspace") {
-          if(errorMessageEl) errorMessageEl.textContent = "";
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
-        } else if (e.key === "Enter") {
-          if (inputBuffer === "jonas") {
-            startup.style.display = "none";
-            terminal.style.display = "block";
-            playbackStarted = true;
-            updateExcerpts();
-            setInitialAudioSettings();
-            audio.play();
-            monitorAudio();
-            setInterval(updateExcerpts, 6000);
-            showCommands();
-          } else if (inputBuffer.length > 0) {
-            if(errorMessageEl) errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
-            inputBuffer = "";
-            typed.textContent = "";
-          } else {
-            if(errorMessageEl) errorMessageEl.textContent = "";
-          }
         }
-      } else { // playbackStarted is true
+        if (inputBuffer === "jonas") {
+          startup.style.display = "none";
+          terminal.style.display = "block";
+          playbackStarted = true;
+          updateExcerpts();
+           setInitialAudioSettings();
+          audio.play();
+          monitorAudio();
+          setInterval(updateExcerpts, 6000);
+          showCommands();
+        }
+      } else {
         if (e.key === "p") audio.paused ? audio.play() : audio.pause();
         if (e.key === "r") audio.currentTime = Math.max(audio.currentTime - 10, 0);
         if (e.key === "f") audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
-        if (e.key === "v") {
-          currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
-          audio.volume = volumeLevels[currentVolumeIndex];
-          audioStatus.textContent = `-- volume: ${volumeNames[currentVolumeIndex]} (${(audio.volume * 100).toFixed(0)}%)`;
-        }
+    if (e.key === "v") { // NEW LOGIC for cycling 'v'
+      currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
+      audio.volume = volumeLevels[currentVolumeIndex];
+      audioStatus.textContent = `-- volume: ${volumeNames[currentVolumeIndex]} (${(audio.volume * 100).toFixed(0)}%)`;
+    }
         if (e.key === "q") {
           audio.pause();
           audio.currentTime = 0;
-          endPrompt.innerHTML = ">> playback terminated.";
+          endPrompt.innerHTML = `>> playback terminated.`;
         }
       }
     });
