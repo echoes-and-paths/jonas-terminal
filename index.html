@@ -17,7 +17,6 @@
       border-radius: 15px;
       box-shadow: 0 0 60px rgba(74, 246, 38, 0.15) inset;
     }
-
     body::before {
       content: '';
       position: fixed;
@@ -34,17 +33,14 @@
       z-index: 10;
       pointer-events: none;
     }
-
     @keyframes scanlines-pulse {
       0%, 100% { opacity: 0.05; }
       50% { opacity: 0.1; }
     }
-
     @keyframes flicker {
       0%, 19%, 21%, 23%, 25%, 54%, 100% { opacity: 1; }
       20%, 22%, 24%, 55% { opacity: 0.95; }
     }
-
     #startup, #terminal {
       position: absolute;
       top: 10vh;
@@ -54,36 +50,15 @@
       font-size: 1.1rem;
       line-height: 1.75rem;
       z-index: 2;
+      text-shadow: 0 0 5px #4AF626, 0 0 10px #4AF626, 0 0 20px #4AF626;
     }
-
-    #terminal {
-      display: none;
-      text-shadow:
-        0 0 5px #4AF626,
-        0 0 10px #4AF626,
-        0 0 20px #4AF626;
-    }
-
-    #glitchHint {
-      opacity: 0.05;
-      font-style: italic;
-      position: absolute;
-      left: 220px;
-      top: 150px;
-      pointer-events: none;
-    }
-
     .cursor {
       display: inline-block;
       width: 10px;
       background: #4AF626;
       animation: blink 1s step-end infinite;
     }
-
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-
+    @keyframes blink { 50% { opacity: 0; } }
     .glitch-bars {
       position: fixed;
       top: -100px;
@@ -99,26 +74,15 @@
       pointer-events: none;
       animation: glitchRoll 8s infinite ease-in-out;
     }
-
     @keyframes glitchRoll {
-      0%, 95%, 100% {
-        transform: translateY(-120%);
-        opacity: 0;
-      }
-      45% {
-        transform: translateY(100vh);
-        opacity: 0.3;
-      }
-      46% {
-        opacity: 0;
-      }
+      0%, 95%, 100% { transform: translateY(-120%); opacity: 0; }
+      45% { transform: translateY(100vh); opacity: 0.3; }
+      46% { opacity: 0; }
     }
-
     .glitch-char {
       display: inline-block;
       animation: glitchChar 4s infinite steps(1, end);
     }
-
     @keyframes glitchChar {
       0%, 98%, 100% { opacity: 1; transform: none; filter: none; }
       2% {
@@ -135,26 +99,22 @@
 </head>
 <body>
   <div id="startup">
-> SYSTEM LINK :: CORRUPTED MEMORY SECTOR ACCESS
-> ARCHIVE FILE RECOVERY INTERFACE v7.1
-
-> Enter archive file name: <span id="typed"></span><span class="cursor">&nbsp;</span>
-<span id="glitchHint">jonas</span>
+> SYSTEM LINK :: <span class="glitch-char">CORRUPTED</span> MEMORY SECTOR ACCESS<br/>
+> ARCHIVE FILE RECOVERY INTERFACE v7.1<br/><br/>
+> Enter archive file name: <span id="typed"></span><span class="cursor">&nbsp;</span><br/>
+<span style="opacity: 0.05; font-style: italic;">jonas</span>
   </div>
-
-  <div id="terminal">
+  <div id="terminal" style="display:none;">
 // fragment log: node -- 0345.delta.vermillion<br/>
 // signal echo: jonas.hevel://witness/anomaly_004c<br/>
-<span class="excerpt glitch-char">// transcribed excerpt: "…they kept it quiet, buried under the first failures…"</span><br/>
-<span class="excerpt glitch-char">// transcribed excerpt: "…I only remember the humming—then the static…"</span><br/>
+<span class="excerpt glitch-char">// transcribed excerpt: "...they kept it quiet, buried under the first failures..."</span><br/>
+<span class="excerpt glitch-char">// transcribed excerpt: "...I only remember the humming—then the static..."</span><br/>
 // audio signal type: async.packetstream.96kb.quiet-core<br/>
 <div id="audioStatus"></div>
 <div id="endPrompt"></div>
   </div>
-
   <div class="glitch-bars"></div>
-  <audio id="hevelAudio" src="/jonas_hevel_audio.mp3"></audio>
-
+  <audio id="hevelAudio" src="public/jonas_hevel_audio.mp3"></audio>
   <script>
     const audio = document.getElementById('hevelAudio');
     const startup = document.getElementById('startup');
@@ -162,90 +122,82 @@
     const typed = document.getElementById('typed');
     const audioStatus = document.getElementById('audioStatus');
     const endPrompt = document.getElementById('endPrompt');
-
+    const excerpts = [
+      '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
+    ];
     let inputBuffer = "";
     let playbackStarted = false;
-    const excerpts = [
-      '"…they kept it quiet, buried under the first failures…"',
-
-      '"…I only remember the humming—then the static…"',
-
-      '"…we weren’t meant to hear this again…"',
-
-      '"…they called it recursion loss, whatever that means…"',
-
-      '"…he said the name before everything fell silent…"'
-    ];
-
     function updateExcerpts() {
-      const excerptElements = document.querySelectorAll(".excerpt");
-      excerptElements.forEach(el => {
-        const randomText = excerpts[Math.floor(Math.random() * excerpts.length)];
-        el.textContent = `// transcribed excerpt: ${randomText}`;
+      document.querySelectorAll(".excerpt").forEach(el => {
+        el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
       });
     }
-
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-      const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-      return `${mins}:${secs}`;
+    function formatTime(s) {
+      const m = Math.floor(s / 60).toString().padStart(2, '0');
+      const sec = Math.floor(s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
     }
-
     function monitorAudio() {
-      const duration = audio.duration;
+      const duration = audio.duration || 200;
       const interval = setInterval(() => {
-        if (audio.paused || audio.ended) {
-          clearInterval(interval);
-          return;
-        }
+        if (audio.paused || audio.ended) { clearInterval(interval); return; }
         audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(duration)}`;
       }, 1000);
     }
-
     function handlePlaybackEnd() {
       endPrompt.innerHTML = `>> end of audio signal<br/>play again? (y/n)`;
-      let responseBuffer = "";
       document.addEventListener("keydown", function handler(e) {
-        if (e.key.toLowerCase() === "y") {
+        if (e.key === "y") {
           endPrompt.innerHTML = "";
           updateExcerpts();
           randomizeVolume();
           audio.play();
           monitorAudio();
           document.removeEventListener("keydown", handler);
-        } else if (e.key.toLowerCase() === "n") {
+        } else if (e.key === "n") {
           endPrompt.innerHTML = `>> link closed.`;
           document.removeEventListener("keydown", handler);
         }
       });
     }
-
     function randomizeVolume() {
       audio.volume = 0.85 + Math.random() * 0.15;
     }
-
+    function showCommands() {
+      endPrompt.innerHTML += `<br/>> commands: p = pause/play, r = rewind 10s, f = forward 10s, v = volume, q = quit, help = show this list`;
+    }
     audio.addEventListener("ended", handlePlaybackEnd);
-
     document.addEventListener("keydown", (e) => {
-      if (playbackStarted) return;
-
-      if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
-        inputBuffer += e.key.toLowerCase();
-        typed.textContent = inputBuffer;
-      } else if (e.key === "Backspace") {
-        inputBuffer = inputBuffer.slice(0, -1);
-        typed.textContent = inputBuffer;
-      }
-
-      if (inputBuffer === "jonas") {
-        startup.style.display = "none";
-        terminal.style.display = "block";
-        playbackStarted = true;
-        updateExcerpts();
-        randomizeVolume();
-        audio.play();
-        monitorAudio();
-        setInterval(updateExcerpts, 6000);
+      if (!playbackStarted) {
+        if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
+          inputBuffer += e.key.toLowerCase();
+          typed.textContent = inputBuffer;
+        } else if (e.key === "Backspace") {
+          inputBuffer = inputBuffer.slice(0, -1);
+          typed.textContent = inputBuffer;
+        }
+        if (inputBuffer === "jonas") {
+          startup.style.display = "none";
+          terminal.style.display = "block";
+          playbackStarted = true;
+          updateExcerpts();
+          randomizeVolume();
+          audio.play();
+          monitorAudio();
+          setInterval(updateExcerpts, 6000);
+          showCommands();
+        }
+      } else {
+        if (e.key === "p") audio.paused ? audio.play() : audio.pause();
+        if (e.key === "r") audio.currentTime = Math.max(audio.currentTime - 10, 0);
+        if (e.key === "f") audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
+        if (e.key === "v") audioStatus.textContent = `-- volume: ${(audio.volume * 100).toFixed(0)}%`;
+        if (e.key === "q") {
+          audio.pause();
+          audio.currentTime = 0;
+          endPrompt.innerHTML = `>> playback terminated.`;
+        }
+        if (e.key === "h") showCommands();
       }
     });
   </script>
