@@ -24,13 +24,20 @@
     .terminal {
       max-width: 90vw;
       text-shadow:
-        0 0 3px #ffcc66,
-        0 0 6px #ffcc66,
-        0 0 12px #ffcc66;
+        0 0 2px #ffcc66,
+        0 0 4px #ffcc66,
+        0 0 8px #ffcc66;
       z-index: 2;
       opacity: 0;
       transition: opacity 1s ease-in-out;
-      animation: flicker 3s infinite alternate, jitter 0.3s infinite, decayColor 12s ease-in-out infinite;
+      animation:
+        flicker 3s infinite alternate,
+        mildJitter 1s infinite,
+        decayColor 14s ease-in-out infinite;
+    }
+
+    .terminal.active {
+      opacity: 1;
     }
 
     .scanlines {
@@ -41,16 +48,20 @@
       height: 100vh;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(255, 204, 102, 0.05),
-        rgba(255, 204, 102, 0.05) 2px,
+        rgba(255, 204, 102, 0.06),
+        rgba(255, 204, 102, 0.06) 2px,
         transparent 2px,
         transparent 4px
       );
       z-index: 3;
       pointer-events: none;
       animation: scrollScanlines 1.2s linear infinite;
-      opacity: 0;
+      opacity: 0.2;
       transition: opacity 1s ease-in-out;
+    }
+
+    .scanlines.active {
+      opacity: 0.4;
     }
 
     @keyframes scrollScanlines {
@@ -65,34 +76,40 @@
       width: 100vw;
       height: 100vh;
       box-shadow:
-        inset 0 0 300px rgba(255, 204, 102, 0.15),
-        inset 0 0 600px rgba(255, 204, 102, 0.12),
-        0 0 120px rgba(255, 204, 102, 0.1);
+        inset 0 0 400px rgba(255, 204, 102, 0.2),
+        inset 0 0 800px rgba(255, 204, 102, 0.1),
+        0 0 160px rgba(255, 204, 102, 0.08);
       pointer-events: none;
       z-index: 1;
       animation: glowPulse 8s ease-in-out infinite;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+      opacity: 0.15;
+    }
+
+    .glow.active {
+      opacity: 0.25;
     }
 
     @keyframes glowPulse {
-      0%   { opacity: 0.12; }
-      50%  { opacity: 0.18; }
-      100% { opacity: 0.12; }
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.25; }
     }
 
     @keyframes decayColor {
-      0%, 100% { color: #ffcc66; text-shadow: 0 0 3px #ffcc66, 0 0 6px #ffcc66; }
-      33%      { color: #ffaa44; text-shadow: 0 0 4px #ffaa44, 0 0 8px #ffaa44; }
-      66%      { color: #ff8855; text-shadow: 0 0 3px #ff8855, 0 0 6px #ff8855; }
+      0%, 100% { color: #ffcc66; }
+      33%      { color: #ffaa44; }
+      66%      { color: #ff8844; }
     }
 
-    @keyframes jitter {
+    @keyframes mildJitter {
       0%   { transform: translateX(0); }
-      25%  { transform: translateX(-1px); }
-      50%  { transform: translateX(1px); }
-      75%  { transform: translateX(-0.5px); }
-      100% { transform: translateX(0); }
+      50%  { transform: translateX(0.3px); }
+      100% { transform: translateX(-0.3px); }
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.96; }
+      100% { opacity: 1; }
     }
 
     .hidden-link {
@@ -121,14 +138,12 @@
       padding: 0.5em 1.5em;
       cursor: pointer;
       z-index: 10;
-      text-shadow:
-        0 0 3px #ffcc66,
-        0 0 6px #ffcc66;
+      text-shadow: 0 0 3px #ffcc66, 0 0 6px #ffcc66;
       transition: background 0.2s ease;
     }
 
     #activate:hover {
-      background: rgba(255, 204, 102, 0.1);
+      background: rgba(255, 204, 102, 0.08);
     }
   </style>
 </head>
@@ -200,9 +215,9 @@
         startVolumeModulation(audio);
       }).catch(() => console.warn('Autoplay blocked'));
 
-      document.getElementById("term").style.opacity = 1;
-      document.getElementById("scan").style.opacity = 1;
-      document.getElementById("glow").style.opacity = 1;
+      document.getElementById("term").classList.add("active");
+      document.getElementById("scan").classList.add("active");
+      document.getElementById("glow").classList.add("active");
       document.getElementById("activate").remove();
 
       updateTerminal();
