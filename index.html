@@ -21,6 +21,17 @@
       position: relative;
     }
 
+    .terminal-wrapper {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .terminal-wrapper.active {
+      display: flex;
+    }
+
     .terminal {
       max-width: 90vw;
       text-shadow:
@@ -28,16 +39,11 @@
         0 0 4px #ffcc66,
         0 0 8px #ffcc66;
       z-index: 2;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+      opacity: 1;
       animation:
         flicker 3s infinite alternate,
         mildJitter 1.5s infinite,
         decayColor 14s ease-in-out infinite;
-    }
-
-    .terminal.active {
-      opacity: 1;
     }
 
     .scanlines {
@@ -154,10 +160,12 @@
   <div class="scanlines" id="scan"></div>
   <div class="glow" id="glow"></div>
 
-  <div class="terminal" id="term">
-    <p id="nodeLine">// fragment log: node --</p>
-    <p id="fragment">...</p>
-    <p id="echoLine">// signal echo: jonas.hevel://witness/anomaly</p>
+  <div class="terminal-wrapper" id="terminalWrapper">
+    <div class="terminal" id="term">
+      <p id="nodeLine"></p>
+      <p id="fragment"></p>
+      <p id="echoLine"></p>
+    </div>
   </div>
 
   <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
@@ -230,6 +238,7 @@
       }).catch(() => console.warn('Autoplay blocked'));
 
       document.getElementById("term").classList.add("active");
+      document.getElementById("terminalWrapper").classList.add("active");
       document.getElementById("scan").classList.add("active");
       document.getElementById("glow").classList.add("active");
       document.getElementById("activate").remove();
