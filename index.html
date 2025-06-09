@@ -30,7 +30,7 @@
       z-index: 2;
       opacity: 0;
       transition: opacity 1s ease-in-out;
-      animation: flicker 3s infinite alternate, jitter 0.3s infinite; decayColor 12s ease-in-out infinite;
+      animation: flicker 3s infinite alternate, jitter 0.3s infinite, decayColor 12s ease-in-out infinite;
     }
 
     .scanlines {
@@ -41,14 +41,14 @@
       height: 100vh;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(0, 0, 0, 0.08),
-        rgba(0, 0, 0, 0.08) 2px,
+        rgba(255, 204, 102, 0.05),
+        rgba(255, 204, 102, 0.05) 2px,
         transparent 2px,
         transparent 4px
       );
       z-index: 3;
       pointer-events: none;
-      animation: scrollScanlines 1.5s linear infinite;
+      animation: scrollScanlines 1.2s linear infinite;
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
@@ -59,38 +59,41 @@
     }
 
     .glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  box-shadow:
-    inset 0 0 300px rgba(255, 204, 102, 0.12),
-    inset 0 0 600px rgba(255, 204, 102, 0.08),
-    0 0 80px rgba(255, 204, 102, 0.05);
-  pointer-events: none;
-  z-index: 1;
-  animation: glowPulse 8s ease-in-out infinite;
-}
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      box-shadow:
+        inset 0 0 300px rgba(255, 204, 102, 0.15),
+        inset 0 0 600px rgba(255, 204, 102, 0.12),
+        0 0 120px rgba(255, 204, 102, 0.1);
+      pointer-events: none;
+      z-index: 1;
+      animation: glowPulse 8s ease-in-out infinite;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
 
     @keyframes glowPulse {
       0%   { opacity: 0.12; }
       50%  { opacity: 0.18; }
       100% { opacity: 0.12; }
     }
-  @keyframes decayColor {
-  0%, 100% { color: #ffcc66; text-shadow: 0 0 3px #ffcc66, 0 0 6px #ffcc66; }
-  33%      { color: #ffaa44; text-shadow: 0 0 4px #ffaa44, 0 0 8px #ffaa44; }
-  66%      { color: #ff8855; text-shadow: 0 0 3px #ff8855, 0 0 6px #ff8855; }
-}
 
-@keyframes jitter {
-  0%   { transform: translateX(0); }
-  25%  { transform: translateX(-1px); }
-  50%  { transform: translateX(1px); }
-  75%  { transform: translateX(-0.5px); }
-  100% { transform: translateX(0); }
-}
+    @keyframes decayColor {
+      0%, 100% { color: #ffcc66; text-shadow: 0 0 3px #ffcc66, 0 0 6px #ffcc66; }
+      33%      { color: #ffaa44; text-shadow: 0 0 4px #ffaa44, 0 0 8px #ffaa44; }
+      66%      { color: #ff8855; text-shadow: 0 0 3px #ff8855, 0 0 6px #ff8855; }
+    }
+
+    @keyframes jitter {
+      0%   { transform: translateX(0); }
+      25%  { transform: translateX(-1px); }
+      50%  { transform: translateX(1px); }
+      75%  { transform: translateX(-0.5px); }
+      100% { transform: translateX(0); }
+    }
 
     .hidden-link {
       color: #ffcc66;
@@ -180,35 +183,31 @@
       document.getElementById("echoLine").textContent = `// signal echo: ${getRandom(echoes)}`;
     }
 
+    function startVolumeModulation(audio) {
+      function randomizeVolume() {
+        const base = 0.7;
+        const variance = 0.2;
+        const target = base + (Math.random() * variance * 2 - variance);
+        audio.volume = Math.max(0.05, Math.min(1, target));
+      }
+      setInterval(randomizeVolume, Math.floor(Math.random() * 4000) + 8000);
+    }
+
     document.getElementById("activate").addEventListener("click", () => {
-      // Start audio
       const audio = document.getElementById("jonasBroadcast");
       audio.muted = false;
-      audio.play().catch(() => console.warn('Autoplay blocked'));
+      audio.play().then(() => {
+        startVolumeModulation(audio);
+      }).catch(() => console.warn('Autoplay blocked'));
 
-      // Show terminal + effects
       document.getElementById("term").style.opacity = 1;
       document.getElementById("scan").style.opacity = 1;
       document.getElementById("glow").style.opacity = 1;
-
-      // Remove button
       document.getElementById("activate").remove();
 
-      // Begin fragment loop
       updateTerminal();
       setInterval(updateTerminal, 6000);
     });
-      // Volume modulation
-function randomizeVolume() {
-  const audio = document.getElementById("jonasBroadcast");
-  const base = 0.7;
-  const variance = 0.2;
-  const target = base + (Math.random() * variance * 2 - variance);
-  audio.volume = Math.max(0.05, Math.min(1, target)); // clamp between 0.05 and 1
-}
-
-setInterval(randomizeVolume, Math.floor(Math.random() * 4000) + 8000); // every 8–12 sec
-
   </script>
 </body>
 </html>
