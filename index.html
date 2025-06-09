@@ -12,19 +12,19 @@
       background: black;
       font-family: 'Courier New', Courier, monospace;
       overflow: hidden;
+      color: #4AF626;
       animation: flicker 3s infinite;
       border-radius: 15px;
       box-shadow: 0 0 60px rgba(74, 246, 38, 0.15) inset;
     }
 
-    /* CRT scanlines */
     body::before {
       content: '';
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
       background: repeating-linear-gradient(
-        to top,
+        to bottom,
         rgba(255, 255, 255, 0.03) 0px,
         rgba(255, 255, 255, 0.03) 1px,
         transparent 1px,
@@ -45,50 +45,52 @@
       20%, 22%, 24%, 55% { opacity: 0.95; }
     }
 
-    #terminal {
+    #startup, #terminal {
       position: absolute;
       top: 10vh;
       left: 5vw;
       width: 90vw;
-      line-height: 1.75rem;
-      font-size: 1.1rem;
       white-space: pre-wrap;
-      color: #4AF626;
+      font-size: 1.1rem;
+      line-height: 1.75rem;
+      z-index: 2;
+    }
+
+    #terminal {
+      display: none;
       text-shadow:
         0 0 5px #4AF626,
         0 0 10px #4AF626,
         0 0 20px #4AF626;
-      z-index: 2;
     }
 
-    /* Localized glitchy spans */
-    .glitch-char {
+    #glitchHint {
+      opacity: 0.05;
+      font-style: italic;
+      position: absolute;
+      left: 220px;
+      top: 150px;
+      pointer-events: none;
+    }
+
+    .cursor {
       display: inline-block;
-      animation: glitchChar 4s infinite steps(1, end);
+      width: 10px;
+      background: #4AF626;
+      animation: blink 1s step-end infinite;
     }
 
-    @keyframes glitchChar {
-      0%, 98%, 100% { opacity: 1; transform: none; filter: none; }
-      2% {
-        opacity: 0.6;
-        transform: scaleX(1.3) skewX(10deg);
-        filter: blur(1px);
-      }
-      3% {
-        transform: scaleX(0.9) skewX(-5deg);
-        filter: contrast(200%);
-      }
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
-    /* Thick glitch bar */
     .glitch-bars {
       position: fixed;
       top: -100px;
-      bottom: -100px;
       left: 0;
       width: 100%;
       height: 60px;
-      background: linear-gradient(to top,
+      background: linear-gradient(to bottom,
         rgba(74, 246, 38, 0.4) 0%,
         rgba(74, 246, 38, 0.15) 50%,
         transparent 100%
@@ -114,13 +116,48 @@
   </style>
 </head>
 <body>
+  <div id="startup">
+> SYSTEM LINK :: CORRUPTED MEMORY SECTOR ACCESS
+> ARCHIVE FILE RECOVERY INTERFACE v7.1
+
+> Enter archive file name: <span id="typed"></span><span class="cursor">&nbsp;</span>
+<span id="glitchHint">jonas</span>
+  </div>
+
   <div id="terminal">
-// fragment log: node -- <span class="glitch-char">0345</span>.bravo.alpha<br/>
-// signal echo: jonas.hevel://<span class="glitch-char">witness</span>/anomaly<br/>
-// packet drift detected: ∆[+<span class="glitch-char">3.22s</span>] loop instability rising<br/>
-// awaiting <span class="glitch-char">return</span> ping...
+// fragment log: node -- 0345.delta.vermillion<br/>
+// signal echo: jonas.hevel://witness/anomaly_004c<br/>
+// transcribed excerpt: "…they kept it quiet, buried under the first failures…"<br/>
+// transcribed excerpt: "…I only remember the humming—then the static…"<br/>
+// audio signal type: async.packetstream.96kb.quiet-core
   </div>
 
   <div class="glitch-bars"></div>
+
+  <audio id="hevelAudio" src="jonas_hevel_audio.mp3"></audio>
+
+  <script>
+    const typed = document.getElementById("typed");
+    const startup = document.getElementById("startup");
+    const terminal = document.getElementById("terminal");
+    const audio = document.getElementById("hevelAudio");
+    let inputBuffer = "";
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
+        inputBuffer += e.key.toLowerCase();
+        typed.textContent = inputBuffer;
+      } else if (e.key === "Backspace") {
+        inputBuffer = inputBuffer.slice(0, -1);
+        typed.textContent = inputBuffer;
+      }
+
+      if (inputBuffer === "jonas") {
+        startup.style.display = "none";
+        terminal.style.display = "block";
+        audio.play();
+      }
+    });
+  </script>
 </body>
 </html>
