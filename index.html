@@ -152,9 +152,10 @@
 
     function monitorAudio() {
       const duration = audio.duration || 200;
+      const displayDuration = (audio.duration && isFinite(audio.duration) && audio.duration > 0) ? audio.duration : 200;
       const interval = setInterval(() => {
         if (audio.paused || audio.ended) { clearInterval(interval); return; }
-        audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(duration)}`;
+        audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(displayDuration)}`;
       }, 1000);
     }
 
@@ -188,15 +189,28 @@
     document.addEventListener("keydown", (e) => {
       if (!playbackStarted) {
         if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
-          if(errorMessageEl) errorMessageEl.textContent = "";
+          if(errorMessageEl) errorMessageEl.textContent = ""; // Clear error/last command output
           inputBuffer += e.key.toLowerCase();
           typed.textContent = inputBuffer;
         } else if (e.key === "Backspace") {
-          if(errorMessageEl) errorMessageEl.textContent = "";
+          if(errorMessageEl) errorMessageEl.textContent = ""; // Clear error/last command output
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
         } else if (e.key === "Enter") {
-          if (inputBuffer === "jonas") {
+          if (inputBuffer === "list" || inputBuffer === "dir") { // NEW 'list' or 'dir' command
+            const listOutput = [
+                "> ARCHIVE DIRECTORY LISTING:",
+                "  JONAS.HVL",
+                ""
+            ].join("<br/>");
+            if(errorMessageEl) {
+                errorMessageEl.style.color = "#4AF626"; // Set to normal terminal green
+                errorMessageEl.innerHTML = listOutput;
+            }
+            inputBuffer = "";
+            typed.textContent = "";
+          } else if (inputBuffer === "jonas") {
+            if(errorMessageEl) errorMessageEl.textContent = ""; // Clear any previous message
             startup.style.display = "none";
             terminal.style.display = "block";
             playbackStarted = true;
@@ -207,17 +221,31 @@
             setInterval(updateExcerpts, 6000);
             showCommands();
           } else if (inputBuffer.length > 0) {
-            if(errorMessageEl) errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
+            if(errorMessageEl) {
+                errorMessageEl.style.color = "#FF5555"; // Set to red for error
+                errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
+            }
             inputBuffer = "";
             typed.textContent = "";
-          } else {
-            if(errorMessageEl) errorMessageEl.textContent = "";
+          } else { // User pressed Enter on an empty buffer
+            if(errorMessageEl) errorMessageEl.textContent = ""; // Clear any message
           }
         }
       } else { // playbackStarted is true
-        if (e.key === "p") audio.paused ? audio.play() : audio.pause();
+        if (e.key === "p") {
+          if (audio.paused) {
+            audio.play();
+            monitorAudio();
+          } else {
+            audio.pause();
+          }
+        }
         if (e.key === "r") audio.currentTime = Math.max(audio.currentTime - 10, 0);
-        if (e.key === "f") audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
+        if (e.key === "f") {
+          if (audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+            audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
+          }
+        }
         if (e.key === "v") {
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
