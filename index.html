@@ -1,154 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>echoes and paths</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: black;
-        color: #ffcc66;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 1rem;
-        line-height: 1.5;
-        overflow: hidden;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>echoes and paths</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #ffcc66;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1rem;
+      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
 
-      .terminal {
-        max-width: 90vw;
-        max-height: 90vh;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        position: relative;
-        text-shadow:
-          0 0 2px #ffcc66,
-          0 0 4px #ffcc66,
-          0 0 8px #ffcc66,
-          0 0 12px #ffcc66;
-        animation: flicker 3s infinite alternate;
-        z-index: 2;
-      }
+    .terminal {
+      max-width: 90vw;
+      text-shadow:
+        0 0 3px #ffcc66,
+        0 0 6px #ffcc66,
+        0 0 12px #ffcc66;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
 
-      @keyframes flicker {
-        0% { opacity: 1; }
-        50% { opacity: 0.96; }
-        100% { opacity: 1; }
-      }
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.08),
+        rgba(0, 0, 0, 0.08) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      z-index: 3;
+      pointer-events: none;
+      animation: scrollScanlines 1.5s linear infinite;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
 
-      .scanlines {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: repeating-linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.05),
-          rgba(0, 0, 0, 0.05) 2px,
-          transparent 2px,
-          transparent 4px
-        );
-        z-index: 3;
-        pointer-events: none;
-        animation: scrollScanlines 1.5s linear infinite;
-      }
+    @keyframes scrollScanlines {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 4px; }
+    }
 
-      @keyframes scrollScanlines {
-        0% { background-position: 0 0; }
-        100% { background-position: 0 4px; }
-      }
+    .glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      box-shadow: inset 0 0 200px rgba(255, 204, 102, 0.15);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
 
-      .ambient-glow {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw;
-        height: 100vh;
-        box-shadow: inset 0 0 120px rgba(255, 204, 102, 0.12);
-        pointer-events: none;
-        z-index: 1;
-      }
+    .hidden-link {
+      color: #ffcc66;
+      text-decoration: none;
+      position: absolute;
+      bottom: 2vh;
+      right: 3vw;
+      font-size: 0.8rem;
+      opacity: 0.15;
+      transition: opacity 0.5s;
+      z-index: 5;
+    }
 
-      .hidden-link {
-        color: #ffcc66;
-        text-decoration: none;
-        position: absolute;
-        bottom: 2vh;
-        right: 3vw;
-        font-size: 0.8rem;
-        opacity: 0.15;
-        transition: opacity 0.5s;
-        z-index: 5;
-      }
+    .hidden-link:hover {
+      opacity: 1;
+    }
 
-      .hidden-link:hover {
-        opacity: 1;
-      }
-    </style>
-  </head>
-  <body>
-    <audio id="jonasBroadcast" autoplay loop muted>
-      <source src="public/jonas_hevel_audio.mp3" type="audio/mpeg" />
-    </audio>
+    #activate {
+      position: absolute;
+      background: none;
+      border: 1px solid #ffcc66;
+      color: #ffcc66;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.5em 1.5em;
+      cursor: pointer;
+      z-index: 10;
+      text-shadow:
+        0 0 3px #ffcc66,
+        0 0 6px #ffcc66;
+      transition: background 0.2s ease;
+    }
 
-    <div class="scanlines"></div>
-    <div class="ambient-glow"></div>
+    #activate:hover {
+      background: rgba(255, 204, 102, 0.1);
+    }
+  </style>
+</head>
+<body>
 
-    <div class="terminal">
-      <p id="nodeLine">// fragment log: node --</p>
-      <p id="fragment">...</p>
-      <p id="echoLine">// signal echo: jonas.hevel://witness/anomaly</p>
-    </div>
+  <div class="scanlines" id="scan"></div>
+  <div class="glow" id="glow"></div>
 
-    <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
+  <div class="terminal" id="term">
+    <p id="nodeLine">// fragment log: node --</p>
+    <p id="fragment">...</p>
+    <p id="echoLine">// signal echo: jonas.hevel://witness/anomaly</p>
+  </div>
 
-    <script>
-      // Try to unmute & play audio after page load
-      const audio = document.getElementById('jonasBroadcast');
+  <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
+
+  <audio id="jonasBroadcast" loop>
+    <source src="public/jonas_hevel_audio.mp3" type="audio/mpeg" />
+  </audio>
+
+  <button id="activate">ACTIVATE TRANSMISSION</button>
+
+  <script>
+    const fragments = [
+      "he said he remembered forgetting—the light was wrong, the air too still.",
+      "we never checked the return codes. it just felt... final.",
+      "jonas was already gone when we started listening.",
+      "memory corrupt: trace anomaly ≠ confession",
+      "i only remember the parts that didn’t happen.",
+      "data cascade under audit lock. recursion detected.",
+      "pattern echoes exceed threshold. purge incomplete.",
+      "this isn’t the first version of you i’ve met.",
+      "archival interface breached. standby unknown."
+    ];
+
+    const nodes = ["01-A", "02-B", "03-X", "0F-R", "ECHO-7", "X1-D", "13-Z"];
+    const echoes = [
+      "jonas.hevel://witness/anomaly",
+      "jonas.hevel://trace/rupture",
+      "jonas.hevel://index/breach",
+      "jonas.hevel://decay/loop",
+      "jonas.hevel://contact/denied"
+    ];
+
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function updateTerminal() {
+      document.getElementById("nodeLine").textContent = `// fragment log: node ${getRandom(nodes)}`;
+      document.getElementById("fragment").textContent = `"${getRandom(fragments)}"`;
+      document.getElementById("echoLine").textContent = `// signal echo: ${getRandom(echoes)}`;
+    }
+
+    document.getElementById("activate").addEventListener("click", () => {
+      // Start audio
+      const audio = document.getElementById("jonasBroadcast");
       audio.muted = false;
-      audio.play().catch(() => {
-        console.warn('Audio playback blocked — user interaction may be required.');
-      });
+      audio.play().catch(() => console.warn('Autoplay blocked'));
 
-      const fragments = [
-        "he said he remembered forgetting—the light was wrong, the air too still.",
-        "we never checked the return codes. it just felt... final.",
-        "jonas was already gone when we started listening.",
-        "memory corrupt: trace anomaly ≠ confession",
-        "i only remember the parts that didn’t happen.",
-        "data cascade under audit lock. recursion detected.",
-        "pattern echoes exceed threshold. purge incomplete.",
-        "this isn’t the first version of you i’ve met.",
-        "archival interface breached. standby unknown."
-      ];
+      // Show terminal + effects
+      document.getElementById("term").style.opacity = 1;
+      document.getElementById("scan").style.opacity = 1;
+      document.getElementById("glow").style.opacity = 1;
 
-      const nodes = ["01-A", "02-B", "03-X", "0F-R", "ECHO-7", "X1-D", "13-Z"];
-      const echoes = [
-        "jonas.hevel://witness/anomaly",
-        "jonas.hevel://trace/rupture",
-        "jonas.hevel://index/breach",
-        "jonas.hevel://decay/loop",
-        "jonas.hevel://contact/denied"
-      ];
+      // Remove button
+      document.getElementById("activate").remove();
 
-      function getRandom(array) {
-        return array[Math.floor(Math.random() * array.length)];
-      }
-
-      function updateTerminal() {
-        document.getElementById("nodeLine").textContent = `// fragment log: node ${getRandom(nodes)}`;
-        document.getElementById("fragment").textContent = `"${getRandom(fragments)}"`;
-        document.getElementById("echoLine").textContent = `// signal echo: ${getRandom(echoes)}`;
-      }
-
-      setInterval(updateTerminal, 6000);
+      // Begin fragment loop
       updateTerminal();
-    </script>
-  </body>
+      setInterval(updateTerminal, 6000);
+    });
+  </script>
+</body>
 </html>
