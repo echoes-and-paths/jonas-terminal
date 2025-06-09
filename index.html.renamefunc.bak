@@ -158,7 +158,7 @@
         if (e.key === "y") {
           endPrompt.innerHTML = "";
           updateExcerpts();
-          setInitialAudioSettings();
+          randomizeVolume();
           audio.play();
           monitorAudio();
           document.removeEventListener("keydown", handler);
@@ -168,7 +168,7 @@
         }
       });
     }
-    function setInitialAudioSettings() {
+    function randomizeVolume() {
     // audio.volume = 0.85 + Math.random() * 0.15; // This was the OLD LINE
     audio.volume = volumeLevels[currentVolumeIndex]; // NEW: Set to current selected level
     }
@@ -190,7 +190,7 @@
           terminal.style.display = "block";
           playbackStarted = true;
           updateExcerpts();
-           setInitialAudioSettings();
+          randomizeVolume();
           audio.play();
           monitorAudio();
           setInterval(updateExcerpts, 6000);
