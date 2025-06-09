@@ -9,7 +9,7 @@
         margin: 0;
         padding: 0;
         background: black;
-        color: #00ffcc;
+        color: #ffcc66;
         font-family: 'Courier New', Courier, monospace;
         font-size: 1rem;
         line-height: 1.5;
@@ -18,38 +18,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-      }
-
-      .bg-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover;
-        opacity: 0.10;
-        pointer-events: none;
-        z-index: -2;
-        animation: bgFlicker 4s infinite alternate;
-      }
-
-      @keyframes bgFlicker {
-        0% { opacity: 0.05; }
-        50% { opacity: 0.09; }
-        100% { opacity: 0.07; }
-      }
-
-      .grain-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-image: url('public/grain.png');
-        mix-blend-mode: overlay;
-        opacity: 0.05;
-        z-index: -1;
-        pointer-events: none;
+        position: relative;
       }
 
       .terminal {
@@ -58,24 +27,50 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         position: relative;
+        text-shadow: 0 0 4px #ffcc66, 0 0 10px #ffcc66;
         animation: flicker 3s infinite alternate;
+        z-index: 2;
       }
 
       @keyframes flicker {
         0% { opacity: 1; }
-        50% { opacity: 0.98; }
+        50% { opacity: 0.96; }
         100% { opacity: 1; }
       }
 
+      .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.05),
+          rgba(0, 0, 0, 0.05) 2px,
+          transparent 2px,
+          transparent 4px
+        );
+        z-index: 3;
+        pointer-events: none;
+        animation: scrollScanlines 1.5s linear infinite;
+      }
+
+      @keyframes scrollScanlines {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 4px; }
+      }
+
       .hidden-link {
-        color: #00ffcc;
+        color: #ffcc66;
         text-decoration: none;
         position: absolute;
         bottom: 2vh;
         right: 3vw;
         font-size: 0.8rem;
-        opacity: 0.2;
+        opacity: 0.15;
         transition: opacity 0.5s;
+        z-index: 5;
       }
 
       .hidden-link:hover {
@@ -84,14 +79,16 @@
     </style>
   </head>
   <body>
-    <img class="bg-image" id="bgImage" alt="flicker memory" />
+    <audio id="jonasBroadcast" autoplay loop>
+      <source src="/public/jonas_hevel_audio.mp3" type="audio/mpeg" />
+    </audio>
 
-    <div class="grain-overlay"></div>
+    <div class="scanlines"></div>
 
     <div class="terminal">
-      <p>// fragment log: node 01-A</p>
-      <p id="fragment"></p>
-      <p>// signal echo: jonas.hevel://witness/anomaly</p>
+      <p id="nodeLine">// fragment log: node --</p>
+      <p id="fragment">...</p>
+      <p id="echoLine">// signal echo: jonas.hevel://witness/anomaly</p>
     </div>
 
     <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
@@ -108,8 +105,28 @@
         "this isn’t the first version of you i’ve met.",
         "archival interface breached. standby unknown."
       ];
-      const frag = fragments[Math.floor(Math.random() * fragments.length)];
-      document.getElementById("fragment").innerText = `"${frag}"`;
+
+      const nodes = ["01-A", "02-B", "03-X", "0F-R", "ECHO-7", "X1-D", "13-Z"];
+      const echoes = [
+        "jonas.hevel://witness/anomaly",
+        "jonas.hevel://trace/rupture",
+        "jonas.hevel://index/breach",
+        "jonas.hevel://decay/loop",
+        "jonas.hevel://contact/denied"
+      ];
+
+      function getRandom(array) {
+        return array[Math.floor(Math.random() * array.length)];
+      }
+
+      function updateTerminal() {
+        document.getElementById("nodeLine").textContent = `// fragment log: node ${getRandom(nodes)}`;
+        document.getElementById("fragment").textContent = `"${getRandom(fragments)}"`;
+        document.getElementById("echoLine").textContent = `// signal echo: ${getRandom(echoes)}`;
+      }
+
+      setInterval(updateTerminal, 6000);
+      updateTerminal();
     </script>
   </body>
 </html>
