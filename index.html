@@ -2,253 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>echoes and paths</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>terminal.echoesandpaths.blog</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       background: black;
-      color: #ffcc66;
+      color: #00ffcc;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1rem;
-      line-height: 1.5;
-      height: 100vh;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
     }
 
-    .terminal-wrapper {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .terminal-wrapper.active {
-      display: flex;
-    }
-
-    .terminal {
-      max-width: 90vw;
-      text-shadow:
-        0 0 2px #ffcc66,
-        0 0 4px #ffcc66,
-        0 0 8px #ffcc66;
-      z-index: 2;
-      opacity: 1;
-      animation:
-        flicker 3s infinite alternate,
-        mildJitter 1.5s infinite,
-        decayColor 14s ease-in-out infinite;
-    }
-
-    .scanlines {
+    /* Scanlines effect */
+    body::before {
+      content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(255, 204, 102, 0.08),
-        rgba(255, 204, 102, 0.08) 2px,
-        transparent 2px,
-        transparent 4px
+        rgba(0, 255, 204, 0.02) 0px,
+        rgba(0, 255, 204, 0.02) 1px,
+        transparent 1px,
+        transparent 2px
       );
-      z-index: 3;
       pointer-events: none;
-      animation: scrollScanlines 1.2s linear infinite;
-      opacity: 0.25;
-    }
-
-    .scanlines.active {
-      opacity: 0.45;
-    }
-
-    @keyframes scrollScanlines {
-      0% { background-position: 0 0; }
-      100% { background-position: 0 4px; }
-    }
-
-    .glow {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      box-shadow:
-        inset 0 0 500px rgba(255, 204, 102, 0.25),
-        inset 0 0 1200px rgba(255, 204, 102, 0.12),
-        0 0 240px rgba(255, 204, 102, 0.12);
-      pointer-events: none;
-      z-index: 1;
-      animation: glowPulse 8s ease-in-out infinite;
-      opacity: 0.18;
-    }
-
-    .glow.active {
-      opacity: 0.28;
-    }
-
-    @keyframes glowPulse {
-      0%, 100% { opacity: 0.18; }
-      50% { opacity: 0.28; }
-    }
-
-    @keyframes decayColor {
-      0%, 100% { color: #ffcc66; }
-      33%      { color: #ffaa44; }
-      66%      { color: #ff8844; }
-    }
-
-    @keyframes mildJitter {
-      0%   { transform: translateX(0); }
-      50%  { transform: translateX(0.3px); }
-      100% { transform: translateX(-0.3px); }
-    }
-
-    @keyframes flicker {
-      0% { opacity: 1; }
-      50% { opacity: 0.96; }
-      100% { opacity: 1; }
-    }
-
-    .hidden-link {
-      color: #ffcc66;
-      text-decoration: none;
-      position: absolute;
-      bottom: 2vh;
-      right: 3vw;
-      font-size: 0.8rem;
-      opacity: 0.15;
-      transition: opacity 0.5s;
-      z-index: 5;
-    }
-
-    .hidden-link:hover {
-      opacity: 1;
-    }
-
-    #activate {
-      position: absolute;
-      background: none;
-      border: 1px solid #ffcc66;
-      color: #ffcc66;
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 0.5em 1.5em;
-      cursor: pointer;
       z-index: 10;
-      text-shadow: 0 0 3px #ffcc66, 0 0 6px #ffcc66;
-      transition: background 0.2s ease;
     }
 
-    #activate:focus {
-      outline: none;
-    }
-
-    #activate:hover {
-      background: rgba(255, 204, 102, 0.08);
+    #terminal {
+      position: absolute;
+      top: 10vh;
+      left: 5vw;
+      width: 90vw;
+      line-height: 1.75rem;
+      font-size: 1.1rem;
+      z-index: 2;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <div class="scanlines" id="scan"></div>
-  <div class="glow" id="glow"></div>
-
-  <button id="activate">ACTIVATE TRANSMISSION</button>
-
-  <div class="terminal-wrapper" id="terminalWrapper">
-    <div class="terminal" id="term">
-      <p id="nodeLine"></p>
-      <p id="fragment"></p>
-      <p id="echoLine"></p>
-    </div>
+  <div id="terminal">
+// fragment log: node -- 0345.bravo.alpha
+// signal echo: jonas.hevel://witness/anomaly
+// packet drift detected: ∆[+3.22s] loop instability rising
+// awaiting return ping...
   </div>
-  </div>
-
-  <a class="hidden-link" href="https://afterthis.echoesandpaths.blog">/recurse</a>
-
-  <audio id="jonasBroadcast" loop>
-    <source src="public/jonas_hevel_audio.mp3" type="audio/mpeg" />
-  </audio>
-
-  <button id="activate">ACTIVATE TRANSMISSION</button>
-
-  <script>
-    const fragments = [
-      "If you're hearing this... you've breached the archive boundary.",
-      "Node drift detected. Timestamp: corrupted.",
-      "I’ve rerun the sequence. It’s wrong every time.",
-      "Someone rewrote me.",
-      "I remember versions that never stabilized.",
-      "Don’t trust the verification logs.",
-      "Jonas Hevel. Node collapse event. Echo trace: irreversible.",
-      "You don’t have to wake up clean.",
-      "You just have to echo louder than the last version."
-    ];
-
-    const nodes = ["01-A", "02-B", "03-X", "0F-R", "ECHO-7", "X1-D", "13-Z"];
-    const echoes = [
-      "jonas.hevel://witness/anomaly",
-      "jonas.hevel://trace/rupture",
-      "jonas.hevel://index/breach",
-      "jonas.hevel://decay/loop",
-      "jonas.hevel://contact/denied"
-    ];
-
-    function getRandom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function updateTerminal() {
-      document.getElementById("nodeLine").textContent = `// fragment log: node ${getRandom(nodes)}`;
-      document.getElementById("fragment").textContent = `"${getRandom(fragments)}"`;
-      document.getElementById("echoLine").textContent = `// signal echo: ${getRandom(echoes)}`;
-    }
-
-    function startVolumeModulation(audio) {
-      function randomizeVolume() {
-        const base = 0.7;
-        const variance = 0.2;
-        const target = base + (Math.random() * variance * 2 - variance);
-        audio.volume = Math.max(0.05, Math.min(1, target));
-      }
-      setInterval(randomizeVolume, Math.floor(Math.random() * 4000) + 8000);
-    }
-
-    document.getElementById("activate").addEventListener("click", () => {
-      // Boot Flicker
-      document.body.style.transition = "background 0.15s ease";
-      document.body.style.background = "#222";
-      setTimeout(() => document.body.style.background = "black", 120);
-      setTimeout(() => {
-        document.body.style.background = "#1a1a1a";
-        setTimeout(() => {
-          document.body.style.background = "black";
-        }, 80);
-      }, 250);
-
-      // Start audio + fragment
-      const audio = document.getElementById("jonasBroadcast");
-      audio.muted = false;
-      audio.play().then(() => {
-        startVolumeModulation(audio);
-      }).catch(() => console.warn('Autoplay blocked'));
-
-      document.getElementById("term").classList.add("active");
-      document.getElementById("terminalWrapper").classList.add("active");
-      document.getElementById("scan").classList.add("active");
-      document.getElementById("glow").classList.add("active");
-      document.getElementById("activate").remove();
-
-      updateTerminal();
-      setInterval(updateTerminal, 6000);
-    });
-  </script>
 </body>
 </html>
