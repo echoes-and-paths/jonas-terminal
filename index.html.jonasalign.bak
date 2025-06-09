@@ -95,11 +95,6 @@
         filter: contrast(200%);
       }
     }
-    .jonas-hint {
-      opacity: 0.05;
-      font-style: italic;
-      padding-left: 28ch; /* For prompt alignment */
-    }
   </style>
 </head>
 <body>
@@ -107,7 +102,7 @@
 > SYSTEM LINK :: <span class="glitch-char">CORRUPTED</span> MEMORY SECTOR ACCESS<br/>
 > ARCHIVE FILE RECOVERY INTERFACE v7.1<br/><br/>
 > Enter archive file name: <span id="typed"></span><span class="cursor">&nbsp;</span><br/>
-<span class="jonas-hint">jonas</span>
+<span style="opacity: 0.05; font-style: italic;">jonas</span>
   </div>
   <div id="terminal" style="display:none;">
 // fragment log: node -- 0345.delta.vermillion<br/>
@@ -158,7 +153,7 @@
         if (e.key === "y") {
           endPrompt.innerHTML = "";
           updateExcerpts();
-          setInitialAudioSettings();
+          randomizeVolume();
           audio.play();
           monitorAudio();
           document.removeEventListener("keydown", handler);
@@ -168,7 +163,7 @@
         }
       });
     }
-    function setInitialAudioSettings() {
+    function randomizeVolume() {
     // audio.volume = 0.85 + Math.random() * 0.15; // This was the OLD LINE
     audio.volume = volumeLevels[currentVolumeIndex]; // NEW: Set to current selected level
     }
@@ -190,7 +185,7 @@
           terminal.style.display = "block";
           playbackStarted = true;
           updateExcerpts();
-           setInitialAudioSettings();
+          randomizeVolume();
           audio.play();
           monitorAudio();
           setInterval(updateExcerpts, 6000);
