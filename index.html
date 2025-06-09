@@ -179,6 +179,17 @@
       updateTerminal();
       setInterval(updateTerminal, 6000);
     });
+      // Volume modulation
+function randomizeVolume() {
+  const audio = document.getElementById("jonasBroadcast");
+  const base = 0.7;
+  const variance = 0.2;
+  const target = base + (Math.random() * variance * 2 - variance);
+  audio.volume = Math.max(0.05, Math.min(1, target)); // clamp between 0.05 and 1
+}
+
+setInterval(randomizeVolume, Math.floor(Math.random() * 4000) + 8000); // every 8–12 sec
+
   </script>
 </body>
 </html>
