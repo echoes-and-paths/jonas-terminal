@@ -138,6 +138,13 @@
     let inputBuffer = "";
     let playbackStarted = false;
 
+    // HTMLMediaElement readyState values:
+    // HAVE_NOTHING = 0
+    // HAVE_METADATA = 1 (duration, dimensions, text tracks set)
+    // HAVE_CURRENT_DATA = 2 (data for current playback position is available)
+    // HAVE_FUTURE_DATA = 3 (data for current and at least a little ahead is available)
+    // HAVE_ENOUGH_DATA = 4 (enough data to play to the end)
+
     function updateExcerpts() {
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
@@ -152,9 +159,10 @@
 
     function monitorAudio() {
       const duration = audio.duration || 200;
+      const displayDuration = (audio.duration && isFinite(audio.duration) && audio.duration > 0) ? audio.duration : 200;
       const interval = setInterval(() => {
         if (audio.paused || audio.ended) { clearInterval(interval); return; }
-        audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(duration)}`;
+        audioStatus.textContent = `-- time: ${formatTime(audio.currentTime)} / ${formatTime(displayDuration)}`;
       }, 1000);
     }
 
@@ -196,7 +204,20 @@
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
         } else if (e.key === "Enter") {
-          if (inputBuffer === "jonas") {
+          if (inputBuffer === "list" || inputBuffer === "dir") {
+            const listOutput = [
+                "> ARCHIVE DIRECTORY LISTING:",
+                "  JONAS.HVL",
+                ""
+            ].join("<br/>");
+            if(errorMessageEl) {
+                errorMessageEl.style.color = "#4AF626";
+                errorMessageEl.innerHTML = listOutput;
+            }
+            inputBuffer = "";
+            typed.textContent = "";
+          } else if (inputBuffer === "jonas") {
+            if(errorMessageEl) errorMessageEl.textContent = "";
             startup.style.display = "none";
             terminal.style.display = "block";
             playbackStarted = true;
@@ -207,7 +228,10 @@
             setInterval(updateExcerpts, 6000);
             showCommands();
           } else if (inputBuffer.length > 0) {
-            if(errorMessageEl) errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
+            if(errorMessageEl) {
+                errorMessageEl.style.color = "#FF5555";
+                errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
+            }
             inputBuffer = "";
             typed.textContent = "";
           } else {
@@ -215,9 +239,25 @@
           }
         }
       } else { // playbackStarted is true
-        if (e.key === "p") audio.paused ? audio.play() : audio.pause();
-        if (e.key === "r") audio.currentTime = Math.max(audio.currentTime - 10, 0);
-        if (e.key === "f") audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
+        if (e.key === "p") {
+          if (audio.paused) {
+            audio.play();
+            monitorAudio();
+          } else {
+            audio.pause();
+          }
+        }
+        if (e.key === "r") { // CORRECTED 'r' KEY LOGIC
+          if (audio.readyState >= 2) { // Check if audio is ready for seeking (HAVE_CURRENT_DATA or higher)
+            audio.currentTime = Math.max(audio.currentTime - 10, 0);
+          }
+        }
+        if (e.key === "f") { // CORRECTED 'f' KEY LOGIC
+          // Check readyState AND valid duration
+          if (audio.readyState >= 2 && audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+            audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
+          }
+        }
         if (e.key === "v") {
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
