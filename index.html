@@ -138,13 +138,6 @@
     let inputBuffer = "";
     let playbackStarted = false;
 
-    // HTMLMediaElement readyState values:
-    // HAVE_NOTHING = 0
-    // HAVE_METADATA = 1 (duration, dimensions, text tracks set)
-    // HAVE_CURRENT_DATA = 2 (data for current playback position is available)
-    // HAVE_FUTURE_DATA = 3 (data for current and at least a little ahead is available)
-    // HAVE_ENOUGH_DATA = 4 (enough data to play to the end)
-
     function updateExcerpts() {
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
@@ -187,8 +180,8 @@
       audio.volume = volumeLevels[currentVolumeIndex];
     }
 
-    function showCommands() {
-      endPrompt.innerHTML += `<br/>> commands: p = pause/play, r = rewind 10s, f = forward 10s, v = volume, q = quit`;
+    function showCommands() { // MODIFIED FUNCTION
+      endPrompt.innerHTML += `<br/>> commands: p = pause/play, v = volume, q = quit`;
     }
 
     audio.addEventListener("ended", handlePlaybackEnd);
@@ -247,17 +240,7 @@
             audio.pause();
           }
         }
-        if (e.key === "r") { // CORRECTED 'r' KEY LOGIC
-          if (audio.readyState >= 2) { // Check if audio is ready for seeking (HAVE_CURRENT_DATA or higher)
-            audio.currentTime = Math.max(audio.currentTime - 10, 0);
-          }
-        }
-        if (e.key === "f") { // CORRECTED 'f' KEY LOGIC
-          // Check readyState AND valid duration
-          if (audio.readyState >= 2 && audio.duration && isFinite(audio.duration) && audio.duration > 0) {
-            audio.currentTime = Math.min(audio.currentTime + 10, audio.duration);
-          }
-        }
+        // 'r' and 'f' key logic removed
         if (e.key === "v") {
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
