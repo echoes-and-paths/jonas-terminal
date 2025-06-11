@@ -3,12 +3,15 @@
     let currentVolumeIndex = 1; // Start at Medium
     const errorMessageEl = document.getElementById('errorMessage');
     const audio = document.getElementById('hevelAudio');
+ fix/audio-ui-updates
     const rickrollAudioEl = document.getElementById('rickrollAudio');
+ main
     const startup = document.getElementById('startup');
     const terminal = document.getElementById('terminal');
     const typed = document.getElementById('typed');
     const audioStatus = document.getElementById('audioStatus');
     const endPrompt = document.getElementById('endPrompt');
+fix/audio-ui-updates
 
     const excerpts = [
       '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
@@ -52,11 +55,21 @@
 
     function updateExcerpts() {
       if (rickrollPlaying) return;
+
+    const excerpts = [
+      '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
+    ];
+    let inputBuffer = "";
+    let playbackStarted = false;
+
+    function updateExcerpts() {
+ main
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
       });
     }
 
+ fix/audio-ui-updates
     function displayRickrollLyrics() {
       if (currentLyricIndex < rickrollLyrics.length) {
         document.querySelectorAll(".excerpt").forEach(el => {
@@ -70,6 +83,7 @@
       }
     }
 
+ main
     function formatTime(s) {
       const m = Math.floor(s / 60).toString().padStart(2, '0');
       const sec = Math.floor(s % 60).toString().padStart(2, '0');
@@ -85,7 +99,11 @@
       }, 1000);
     }
 
+fix/audio-ui-updates
     function handlePlaybackEnd() { // For main audio
+
+    function handlePlaybackEnd() {
+main
       endPrompt.innerHTML = `>> end of audio signal<br/>play again? (y/n)`;
       document.addEventListener("keydown", function handler(e) {
         if (e.key === "y") {
@@ -104,15 +122,22 @@
 
     function setInitialAudioSettings() {
       audio.volume = volumeLevels[currentVolumeIndex];
+fix/audio-ui-updates
       if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
     }
 
     function showCommands() {
+
+    }
+
+    function showCommands() { // MODIFIED FUNCTION
+main
       endPrompt.innerHTML += `<br/>> commands: p = pause/play, v = volume, q = quit`;
     }
 
     audio.addEventListener("ended", handlePlaybackEnd);
 
+ fix/audio-ui-updates
     if (rickrollAudioEl) { // Add listener for Rickroll audio end
       rickrollAudioEl.addEventListener("ended", () => {
         if (lyricInterval) {
@@ -158,6 +183,9 @@
         return;
       }
 
+
+    document.addEventListener("keydown", (e) => {
+main
       if (!playbackStarted) {
         if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
           if(errorMessageEl) errorMessageEl.textContent = "";
@@ -168,6 +196,7 @@
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
         } else if (e.key === "Enter") {
+fix/audio-ui-updates
           if (inputBuffer === "admin") {
             if (errorMessageEl) errorMessageEl.textContent = "";
             if (errorMessageEl) {
@@ -195,6 +224,14 @@
             typed.textContent = "";
           } else if (inputBuffer === "list" || inputBuffer === "dir") {
             const listOutput = ["> ARCHIVE DIRECTORY LISTING:","  JONAS.HVL",""].join("<br/>");
+
+          if (inputBuffer === "list" || inputBuffer === "dir") {
+            const listOutput = [
+                "> ARCHIVE DIRECTORY LISTING:",
+                "  JONAS.HVL",
+                ""
+            ].join("<br/>");
+main
             if(errorMessageEl) {
                 errorMessageEl.style.color = "#4AF626";
                 errorMessageEl.innerHTML = listOutput;
@@ -223,7 +260,11 @@
             if(errorMessageEl) errorMessageEl.textContent = "";
           }
         }
+fix/audio-ui-updates
       } else { // playbackStarted is true (and rickrollPlaying is false)
+
+      } else { // playbackStarted is true
+main
         if (e.key === "p") {
           if (audio.paused) {
             audio.play();
@@ -232,10 +273,17 @@
             audio.pause();
           }
         }
+ fix/audio-ui-updates
         if (e.key === "v") {
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
           if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
+
+        // 'r' and 'f' key logic removed
+        if (e.key === "v") {
+          currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
+          audio.volume = volumeLevels[currentVolumeIndex];
+main
           audioStatus.textContent = `-- volume: ${volumeNames[currentVolumeIndex]} (${(audio.volume * 100).toFixed(0)}%)`;
         }
         if (e.key === "q") {
