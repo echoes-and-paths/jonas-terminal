@@ -3,15 +3,12 @@
     let currentVolumeIndex = 1; // Start at Medium
     const errorMessageEl = document.getElementById('errorMessage');
     const audio = document.getElementById('hevelAudio');
- fix/audio-ui-updates
     const rickrollAudioEl = document.getElementById('rickrollAudio');
- main
     const startup = document.getElementById('startup');
     const terminal = document.getElementById('terminal');
     const typed = document.getElementById('typed');
     const audioStatus = document.getElementById('audioStatus');
     const endPrompt = document.getElementById('endPrompt');
-fix/audio-ui-updates
 
     const excerpts = [
       '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
@@ -55,21 +52,11 @@ fix/audio-ui-updates
 
     function updateExcerpts() {
       if (rickrollPlaying) return;
-
-    const excerpts = [
-      '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
-    ];
-    let inputBuffer = "";
-    let playbackStarted = false;
-
-    function updateExcerpts() {
- main
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
       });
     }
 
- fix/audio-ui-updates
     function displayRickrollLyrics() {
       if (currentLyricIndex < rickrollLyrics.length) {
         document.querySelectorAll(".excerpt").forEach(el => {
@@ -78,12 +65,10 @@ fix/audio-ui-updates
         currentLyricIndex++;
       } else {
         if (lyricInterval) clearInterval(lyricInterval);
-        lyricInterval = null; // Important to nullify after clearing
         currentLyricIndex = 0;
       }
     }
 
- main
     function formatTime(s) {
       const m = Math.floor(s / 60).toString().padStart(2, '0');
       const sec = Math.floor(s % 60).toString().padStart(2, '0');
@@ -99,11 +84,7 @@ fix/audio-ui-updates
       }, 1000);
     }
 
-fix/audio-ui-updates
-    function handlePlaybackEnd() { // For main audio
-
     function handlePlaybackEnd() {
-main
       endPrompt.innerHTML = `>> end of audio signal<br/>play again? (y/n)`;
       document.addEventListener("keydown", function handler(e) {
         if (e.key === "y") {
@@ -122,46 +103,19 @@ main
 
     function setInitialAudioSettings() {
       audio.volume = volumeLevels[currentVolumeIndex];
-fix/audio-ui-updates
       if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
     }
 
     function showCommands() {
-
-    }
-
-    function showCommands() { // MODIFIED FUNCTION
-main
       endPrompt.innerHTML += `<br/>> commands: p = pause/play, v = volume, q = quit`;
     }
 
     audio.addEventListener("ended", handlePlaybackEnd);
-
- fix/audio-ui-updates
-    if (rickrollAudioEl) { // Add listener for Rickroll audio end
-      rickrollAudioEl.addEventListener("ended", () => {
-        if (lyricInterval) {
-          clearInterval(lyricInterval);
-          lyricInterval = null;
-        }
-        document.querySelectorAll(".excerpt").forEach(el => el.textContent = "");
-
-        if (errorMessageEl) {
-            errorMessageEl.style.color = "#4AF626";
-            errorMessageEl.textContent = ">> UNEXPECTED FRAGMENT PLAYBACK COMPLETED.";
-        }
-
-        rickrollPlaying = false;
-        currentLyricIndex = 0;
-
-        inputBuffer = "";
-        if (typed) typed.textContent = inputBuffer;
-      });
-    }
+    // Rickroll audio end listener will be added in the next step.
 
     document.addEventListener("keydown", (e) => {
       if (rickrollPlaying) {
-        if (e.key === "q") {
+        if (e.key === "q") { // 'q' TO QUIT RICKROLL
           if (rickrollAudioEl) {
             rickrollAudioEl.pause();
             rickrollAudioEl.currentTime = 0;
@@ -172,21 +126,26 @@ main
           }
           document.querySelectorAll(".excerpt").forEach(el => el.textContent = "");
           if (errorMessageEl) {
-            errorMessageEl.style.color = "#4AF626"; // Normal color for this message
-            errorMessageEl.innerHTML = "> ADMIN OVERRIDE TERMINATED.";
+            errorMessageEl.textContent = "";
           }
+          // endPrompt is used for main audio messages, let's use errorMessageEl for this
+          // or a dedicated status line if we had one. For now, clear it or use it.
+          if (errorMessageEl) errorMessageEl.innerHTML = "> ADMIN OVERRIDE TERMINATED.";
+
           rickrollPlaying = false;
           currentLyricIndex = 0;
+          // After quitting Rickroll, the user is back at the startup prompt.
+          // If normal excerpts should show, call updateExcerpts(), but they only show in terminal view.
+          // Clearing inputBuffer and typed.textContent is good practice here.
           inputBuffer = "";
           if(typed) typed.textContent = inputBuffer;
+
         }
-        return;
+        return; // Absorb other key presses during Rickroll
       }
 
-
-    document.addEventListener("keydown", (e) => {
-main
       if (!playbackStarted) {
+        // ... (logic for list, dir, admin, jonas, other input - unchanged from previous step)
         if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
           if(errorMessageEl) errorMessageEl.textContent = "";
           inputBuffer += e.key.toLowerCase();
@@ -196,7 +155,6 @@ main
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
         } else if (e.key === "Enter") {
-fix/audio-ui-updates
           if (inputBuffer === "admin") {
             if (errorMessageEl) errorMessageEl.textContent = "";
             if (errorMessageEl) {
@@ -224,14 +182,6 @@ fix/audio-ui-updates
             typed.textContent = "";
           } else if (inputBuffer === "list" || inputBuffer === "dir") {
             const listOutput = ["> ARCHIVE DIRECTORY LISTING:","  JONAS.HVL",""].join("<br/>");
-
-          if (inputBuffer === "list" || inputBuffer === "dir") {
-            const listOutput = [
-                "> ARCHIVE DIRECTORY LISTING:",
-                "  JONAS.HVL",
-                ""
-            ].join("<br/>");
-main
             if(errorMessageEl) {
                 errorMessageEl.style.color = "#4AF626";
                 errorMessageEl.innerHTML = listOutput;
@@ -260,11 +210,7 @@ main
             if(errorMessageEl) errorMessageEl.textContent = "";
           }
         }
-fix/audio-ui-updates
       } else { // playbackStarted is true (and rickrollPlaying is false)
-
-      } else { // playbackStarted is true
-main
         if (e.key === "p") {
           if (audio.paused) {
             audio.play();
@@ -273,17 +219,10 @@ main
             audio.pause();
           }
         }
- fix/audio-ui-updates
         if (e.key === "v") {
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
           if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
-
-        // 'r' and 'f' key logic removed
-        if (e.key === "v") {
-          currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
-          audio.volume = volumeLevels[currentVolumeIndex];
-main
           audioStatus.textContent = `-- volume: ${volumeNames[currentVolumeIndex]} (${(audio.volume * 100).toFixed(0)}%)`;
         }
         if (e.key === "q") {
