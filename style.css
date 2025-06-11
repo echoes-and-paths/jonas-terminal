@@ -1,0 +1,95 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: black;
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+  color: #4AF626;
+  animation: flicker 3s infinite;
+  border-radius: 15px;
+  box-shadow: 0 0 60px rgba(74, 246, 38, 0.15) inset;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: scanlines-pulse 2s infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+@keyframes scanlines-pulse {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.1; }
+}
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 100% { opacity: 1; }
+  20%, 22%, 24%, 55% { opacity: 0.95; }
+}
+#startup, #terminal {
+  position: absolute;
+  top: 10vh;
+  left: 5vw;
+  width: 90vw;
+  white-space: pre-wrap;
+  font-size: 1.1rem;
+  line-height: 1.75rem;
+  z-index: 2;
+  text-shadow: 0 0 5px #4AF626, 0 0 10px #4AF626, 0 0 20px #4AF626;
+}
+.cursor {
+  display: inline-block;
+  width: 10px;
+  background: #4AF626;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.glitch-bars {
+  position: fixed;
+  top: -100px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to bottom,
+    rgba(74, 246, 38, 0.4) 0%,
+    rgba(74, 246, 38, 0.15) 50%,
+    transparent 100%
+  );
+  z-index: 8;
+  pointer-events: none;
+  animation: glitchRoll 8s infinite ease-in-out;
+}
+@keyframes glitchRoll {
+  0%, 95%, 100% { transform: translateY(-120%); opacity: 0; }
+  45% { transform: translateY(100vh); opacity: 0.3; }
+  46% { opacity: 0; }
+}
+.glitch-char {
+  display: inline-block;
+  animation: glitchChar 4s infinite steps(1, end);
+}
+@keyframes glitchChar {
+  0%, 98%, 100% { opacity: 1; transform: none; filter: none; }
+  2% {
+    opacity: 0.6;
+    transform: scaleX(1.3) skewX(10deg);
+    filter: blur(1px);
+  }
+  3% {
+    transform: scaleX(0.9) skewX(-5deg);
+    filter: contrast(200%);
+  }
+}
+.jonas-hint {
+  opacity: 0.25; /* User updated this from 0.05 */
+  font-style: italic;
+  padding-left: 28ch; /* For prompt alignment */
+}
