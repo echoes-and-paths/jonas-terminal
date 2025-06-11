@@ -3,13 +3,13 @@
     let currentVolumeIndex = 1; // Start at Medium
     const errorMessageEl = document.getElementById('errorMessage');
     const audio = document.getElementById('hevelAudio');
-    const rickrollAudioEl = document.getElementById('rickrollAudio');
+    const rickrollAudioEl = document.getElementById('rickrollAudio'); 
     const startup = document.getElementById('startup');
     const terminal = document.getElementById('terminal');
     const typed = document.getElementById('typed');
     const audioStatus = document.getElementById('audioStatus');
     const endPrompt = document.getElementById('endPrompt');
-
+    
     const excerpts = [
       '"…they kept it quiet, buried under the first failures…"','"…I only remember the humming—then the static…"','"…we weren’t meant to hear this again…"','"…they called it recursion loss, whatever that means…"','"…he said the name before everything fell silent…"'
     ];
@@ -17,12 +17,12 @@
 
     let inputBuffer = "";
     let playbackStarted = false;
-    let rickrollPlaying = false;
-    let lyricInterval = null;
+    let rickrollPlaying = false; 
+    let lyricInterval = null;    
     // currentLyricIndex is removed
 
     function updateExcerpts() {
-      if (rickrollPlaying) return;
+      if (rickrollPlaying) return; 
       document.querySelectorAll(".excerpt").forEach(el => {
         el.textContent = "// transcribed excerpt: " + excerpts[Math.floor(Math.random() * excerpts.length)];
       });
@@ -50,7 +50,7 @@
       }, 1000);
     }
 
-    function handlePlaybackEnd() {
+    function handlePlaybackEnd() { 
       endPrompt.innerHTML = `>> end of audio signal<br/>play again? (y/n)`;
       document.addEventListener("keydown", function handler(e) {
         if (e.key === "y") {
@@ -68,7 +68,7 @@
     }
 
     function setInitialAudioSettings() {
-      audio.volume = volumeLevels[currentVolumeIndex];
+      audio.volume = volumeLevels[currentVolumeIndex]; 
       if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
     }
 
@@ -78,27 +78,27 @@
 
     audio.addEventListener("ended", handlePlaybackEnd);
 
-    if (rickrollAudioEl) {
+    if (rickrollAudioEl) { 
       rickrollAudioEl.addEventListener("ended", () => {
         if (lyricInterval) {
           clearInterval(lyricInterval);
           lyricInterval = null;
         }
-        document.querySelectorAll(".excerpt").forEach(el => el.textContent = "");
-        if (errorMessageEl) {
-            errorMessageEl.style.color = "#4AF626";
+        document.querySelectorAll(".excerpt").forEach(el => el.textContent = ""); 
+        if (errorMessageEl) { 
+            errorMessageEl.style.color = "#4AF626"; 
             errorMessageEl.textContent = ">> UNEXPECTED FRAGMENT PLAYBACK COMPLETED.";
         }
         rickrollPlaying = false;
         // currentLyricIndex already removed
         inputBuffer = "";
-        if (typed) typed.textContent = inputBuffer;
+        if (typed) typed.textContent = inputBuffer; 
       });
     }
 
     document.addEventListener("keydown", (e) => {
-      if (rickrollPlaying) {
-        if (e.key === "q") {
+      if (rickrollPlaying) { 
+        if (e.key === "q") { 
           if (rickrollAudioEl) {
             rickrollAudioEl.pause();
             rickrollAudioEl.currentTime = 0;
@@ -107,22 +107,22 @@
             clearInterval(lyricInterval);
             lyricInterval = null;
           }
-          document.querySelectorAll(".excerpt").forEach(el => el.textContent = "");
-          if (errorMessageEl) {
-            errorMessageEl.style.color = "#4AF626";
-            errorMessageEl.innerHTML = "> ADMIN OVERRIDE TERMINATED.";
+          document.querySelectorAll(".excerpt").forEach(el => el.textContent = ""); 
+          if (errorMessageEl) { 
+            errorMessageEl.style.color = "#4AF626"; 
+            errorMessageEl.innerHTML = "> ADMIN OVERRIDE TERMINATED."; 
           }
           rickrollPlaying = false;
           // currentLyricIndex already removed
           inputBuffer = "";
           if(typed) typed.textContent = inputBuffer;
         }
-        return;
+        return; 
       }
 
       if (!playbackStarted) {
         if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
-          if(errorMessageEl) errorMessageEl.textContent = "";
+          if(errorMessageEl) errorMessageEl.textContent = ""; 
           inputBuffer += e.key.toLowerCase();
           typed.textContent = inputBuffer;
         } else if (e.key === "Backspace") {
@@ -130,74 +130,74 @@
           inputBuffer = inputBuffer.slice(0, -1);
           typed.textContent = inputBuffer;
         } else if (e.key === "Enter") {
-          if (inputBuffer === "admin") {
-            if (errorMessageEl) errorMessageEl.textContent = "";
+          if (inputBuffer === "admin") { 
+            if (errorMessageEl) errorMessageEl.textContent = ""; 
             if (errorMessageEl) {
-                errorMessageEl.style.color = "#FF5555";
+                errorMessageEl.style.color = "#FF5555"; 
                 errorMessageEl.innerHTML = "> EXECUTING ADMIN OVERRIDE...<br/>> WARNING: UNSTABLE FRAGMENT DETECTED...";
             }
             setTimeout(() => {
                 if (errorMessageEl) {
-                    errorMessageEl.style.color = "#4AF626";
+                    errorMessageEl.style.color = "#4AF626"; 
                     errorMessageEl.innerHTML = "> PLAYING RECOVERED AUDIO FRAGMENT...";
                 }
                 if (rickrollAudioEl) {
-                    rickrollAudioEl.volume = audio.volume;
+                    rickrollAudioEl.volume = audio.volume; 
                     rickrollAudioEl.play();
                     rickrollPlaying = true;
                     // currentLyricIndex removed, displayRickrollLyrics will use the const
-                    if (lyricInterval) clearInterval(lyricInterval);
+                    if (lyricInterval) clearInterval(lyricInterval); 
                     lyricInterval = setInterval(displayRickrollLyrics, 3000); // Re-asserts the line
                     displayRickrollLyrics(); // Display first instance immediately
                 } else {
                     if(errorMessageEl) errorMessageEl.textContent = "> ERROR: Special audio module not found.";
                 }
-            }, 1500);
+            }, 1500); 
             inputBuffer = "";
             typed.textContent = "";
           } else if (inputBuffer === "list" || inputBuffer === "dir") {
             const listOutput = ["> ARCHIVE DIRECTORY LISTING:","  JONAS.HVL",""].join("<br/>");
             if(errorMessageEl) {
-                errorMessageEl.style.color = "#4AF626";
-                errorMessageEl.innerHTML = listOutput;
+                errorMessageEl.style.color = "#4AF626"; 
+                errorMessageEl.innerHTML = listOutput; 
             }
             inputBuffer = "";
             typed.textContent = "";
           } else if (inputBuffer === "jonas") {
-            if(errorMessageEl) errorMessageEl.textContent = "";
+            if(errorMessageEl) errorMessageEl.textContent = ""; 
             startup.style.display = "none";
             terminal.style.display = "block";
             playbackStarted = true;
             updateExcerpts();
-            setInitialAudioSettings();
+            setInitialAudioSettings(); 
             audio.play();
             monitorAudio();
             setInterval(updateExcerpts, 6000);
-            showCommands();
-          } else if (inputBuffer.length > 0) {
+            showCommands(); 
+          } else if (inputBuffer.length > 0) { 
             if(errorMessageEl) {
-                errorMessageEl.style.color = "#FF5555";
+                errorMessageEl.style.color = "#FF5555"; 
                 errorMessageEl.textContent = "> ACCESS DENIED: Unknown archive.";
             }
             inputBuffer = "";
             typed.textContent = "";
-          } else {
-            if(errorMessageEl) errorMessageEl.textContent = "";
+          } else { 
+            if(errorMessageEl) errorMessageEl.textContent = ""; 
           }
         }
       } else { // playbackStarted is true (and rickrollPlaying is false)
         if (e.key === "p") {
           if (audio.paused) {
             audio.play();
-            monitorAudio();
+            monitorAudio(); 
           } else {
             audio.pause();
           }
         }
-        if (e.key === "v") {
+        if (e.key === "v") { 
           currentVolumeIndex = (currentVolumeIndex + 1) % volumeLevels.length;
           audio.volume = volumeLevels[currentVolumeIndex];
-          if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume;
+          if (rickrollAudioEl) rickrollAudioEl.volume = audio.volume; 
           audioStatus.textContent = `-- volume: ${volumeNames[currentVolumeIndex]} (${(audio.volume * 100).toFixed(0)}%)`;
         }
         if (e.key === "q") {
